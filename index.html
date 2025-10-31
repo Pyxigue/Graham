@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Moteur de recherche stylé</title>
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+  background: radial-gradient(circle at center, #1b1b1b, #111);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  font-family: "Poppins", sans-serif;
+  color: white;
+}
+
+/* --- YEUX --- */
+.eye {
+  width: 60px;
+  height: 60px;
+  background: #333;
+  border-radius: 50%;
+  position: absolute;
+  overflow: hidden;
+  box-shadow: 0 0 25px rgba(0,0,0,0.6);
+}
+
+.eye.left { left: calc(50% - 80px); top: 35%; transform: translateY(-50%); }
+.eye.right { left: calc(50% + 20px); top: 35%; transform: translateY(-50%); }
+
+.pupil {
+  width: 25px;
+  height: 25px;
+  background: #00bfff;
+  border-radius: 50%;
+  position: absolute;
+  top: 17.5px;
+  left: 17.5px;
+  box-shadow: 0 0 15px #00bfff;
+  transition: transform 0.05s ease;
+}
+
+/* --- BARRE DE RECHERCHE --- */
+.search-box {
+  position: absolute;
+  top: 55%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 400px;
+  height: 55px;
+  z-index: 10;
+}
+
+.search-box input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  padding: 0 55px 0 20px;
+  border-radius: 35px;
+  background: #1e1e1e;
+  color: #00bfff;
+  font-size: 1.2rem;
+  box-shadow: 0 0 15px #00bfff80;
+  transition: all 0.3s ease;
+}
+
+.search-box input::placeholder {
+  color: #666;
+}
+
+.search-box input:focus {
+  box-shadow: 0 0 25px #00bfff, inset 0 0 10px #00bfff40;
+}
+
+.search-box .icon {
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.5rem;
+  color: #00bfff;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.search-box .icon:hover {
+  transform: translateY(-50%) scale(1.2);
+}
+
+/* --- RÉSULTATS --- */
+.results {
+  position: absolute;
+  top: 65%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 420px;
+  background: #1a1a1a;
+  border-radius: 15px;
+  box-shadow: 0 0 15px rgba(0,191,255,0.3);
+  color: white;
+  display: none;
+  padding: 10px 0;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.results a {
+  display: block;
+  color: #00bfff;
+  text-decoration: none;
+  padding: 10px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  transition: background 0.3s, color 0.3s;
+}
+
+.results a:hover {
+  background: rgba(0,191,255,0.1);
+  color: #00eaff;
+}
+</style>
+</head>
+<body>
+  <!-- Yeux -->
+  <div class="eye left"><div class="pupil"></div></div>
+  <div class="eye right"><div class="pupil"></div></div>
+
+  <!-- Barre de recherche -->
+  <div class="search-box">
+    <input type="text" id="search" placeholder="Tape ta recherche...">
+    <div class="icon" id="search-btn">🔍</div>
+  </div>
+
+  <!-- Résultats -->
+  <div class="results" id="results"></div>
+
+<script>
+// === YEUX ===
+const eyes = document.querySelectorAll('.eye');
+document.addEventListener('mousemove', (e) => {
+  eyes.forEach(eye => {
+    const pupil = eye.querySelector('.pupil');
+    const rect = eye.getBoundingClientRect();
+    const x = e.clientX - (rect.left + rect.width / 2);
+    const y = e.clientY - (rect.top + rect.height / 2);
+    const maxMove = 12;
+    const angle = Math.atan2(y, x);
+    const distance = Math.min(Math.sqrt(x*x + y*y), maxMove);
+    pupil.style.transform = `translate(${Math.cos(angle)*distance}px, ${Math.sin(angle)*distance}px)`;
+  });
+});
+
+// === RECHERCHE ===
+const input = document.getElementById("search");
+const results = document.getElementById("results");
+const button = document.getElementById("search-btn");
+
+function searchWeb() {
+  const q = input.value.trim();
+  if (q === "") {
+    results.style.display = "none";
+    return;
+  }
+
+  const encoded = encodeURIComponent(q);
+  const searchEngines = {
+    "Google": `https://www.google.com/search?q=${encoded}`,
+    "YouTube": `https://www.youtube.com/results?search_query=${encoded}`,
+    "Wikipedia": `https://fr.wikipedia.org/wiki/${encoded}`,
+    "Bing": `https://www.bing.com/search?q=${encoded}`,
+    "DuckDuckGo": `https://duckduckgo.com/?q=${encoded}`,
+    "GitHub": `https://github.com/search?q=${encoded}`,
+    "Reddit": `https://www.reddit.com/search/?q=${encoded}`,
+    "Amazon": `https://www.amazon.fr/s?k=${encoded}`,
+    "Spotify": `https://open.spotify.com/search/${encoded}`,
+    "TikTok": `https://www.tiktok.com/search?q=${encoded}`
+  };
+
+  results.innerHTML = "";
+  for (const [name, url] of Object.entries(searchEngines)) {
+    const a = document.createElement("a");
+    a.href = url;
+    a.target = "_blank";
+    a.textContent = `${name} → ${q}`;
+    results.appendChild(a);
+  }
+
+  results.style.display = "block";
+}
+
+button.addEventListener("click", searchWeb);
+input.addEventListener("keydown", e => {
+  if (e.key === "Enter") searchWeb();
+});
+</script>
+</body>
+</html>
