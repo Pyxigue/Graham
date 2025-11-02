@@ -26,6 +26,8 @@ body {
   position: absolute;
   overflow: hidden;
   box-shadow: 0 0 25px rgba(0,0,0,0.6);
+  cursor: pointer;
+  transition: height 0.15s ease;
 }
 
 .eye.left { left: calc(50% - 80px); top: 35%; transform: translateY(-50%); }
@@ -41,6 +43,11 @@ body {
   left: 17.5px;
   box-shadow: 0 0 15px #00bfff;
   transition: transform 0.05s ease;
+}
+
+/* Clignement */
+.eye.blink .pupil {
+  transform: translate(0, 0) scaleY(0.1);
 }
 
 /* --- BARRE DE RECHERCHE --- */
@@ -138,7 +145,7 @@ body {
   <div class="results" id="results"></div>
 
 <script>
-// === YEUX ===
+// === YEUX QUI SUIVENT LA SOURIS ===
 const eyes = document.querySelectorAll('.eye');
 document.addEventListener('mousemove', (e) => {
   eyes.forEach(eye => {
@@ -151,6 +158,22 @@ document.addEventListener('mousemove', (e) => {
     const distance = Math.min(Math.sqrt(x*x + y*y), maxMove);
     pupil.style.transform = `translate(${Math.cos(angle)*distance}px, ${Math.sin(angle)*distance}px)`;
   });
+});
+
+// === CLIGNEMENT SYNCHRONISÉ ===
+function blink(eyesArray) {
+  eyesArray.forEach(eye => eye.classList.add('blink'));
+  setTimeout(() => eyesArray.forEach(eye => eye.classList.remove('blink')), 150);
+}
+
+// Clignement automatique toutes les 3 à 6 secondes
+setInterval(() => {
+  blink(eyes);
+}, Math.random() * 3000 + 3000);
+
+// Clignement au clic sur un œil
+eyes.forEach(eye => {
+  eye.addEventListener('click', () => blink([eye]));
 });
 
 // === RECHERCHE ===
