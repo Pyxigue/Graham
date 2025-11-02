@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Moteur de recherche stylé</title>
+<title>Graham</title>
 <style>
 body {
   margin: 0;
@@ -17,7 +17,6 @@ body {
   color: white;
 }
 
-/* --- YEUX --- */
 .eye {
   width: 60px;
   height: 60px;
@@ -45,16 +44,14 @@ body {
   transition: transform 0.05s ease;
 }
 
-/* --- CLIGNEMENT --- */
 .eye.blink {
-  height: 10px; /* l’œil se ferme */
+  height: 10px; 
 }
 
 .eye.blink .pupil {
-  display: none; /* la pupille disparaît pendant le clignement */
+  display: none; 
 }
 
-/* --- BARRE DE RECHERCHE --- */
 .search-box {
   position: absolute;
   top: 55%;
@@ -99,10 +96,8 @@ body {
 }
 
 .search-box .icon:hover {
-  transform: translateY(-50%) scale(1.2);
-}
-
-/* --- RÉSULTATS --- */
+  transform: translateY(-50%) scale;
+  
 .results {
   position: absolute;
   top: 65%;
@@ -135,21 +130,17 @@ body {
 </style>
 </head>
 <body>
-  <!-- Yeux -->
   <div class="eye left"><div class="pupil"></div></div>
   <div class="eye right"><div class="pupil"></div></div>
 
-  <!-- Barre de recherche -->
   <div class="search-box">
     <input type="text" id="search" placeholder="Tape ta recherche...">
     <div class="icon" id="search-btn">🔍</div>
   </div>
 
-  <!-- Résultats -->
   <div class="results" id="results"></div>
 
 <script>
-// === YEUX QUI SUIVENT LA SOURIS ===
 const eyes = document.querySelectorAll('.eye');
 document.addEventListener('mousemove', (e) => {
   eyes.forEach(eye => {
@@ -164,23 +155,19 @@ document.addEventListener('mousemove', (e) => {
   });
 });
 
-// === CLIGNEMENT SYNCHRONISÉ ET AU CLIC ===
 function blink(eyesArray) {
   eyesArray.forEach(eye => eye.classList.add('blink'));
   setTimeout(() => eyesArray.forEach(eye => eye.classList.remove('blink')), 200);
 }
 
-// Clignement automatique toutes les 3 à 6 secondes
 setInterval(() => {
   blink(eyes);
 }, Math.random() * 3000 + 3000);
 
-// Clignement au clic sur un œil
 eyes.forEach(eye => {
   eye.addEventListener('click', () => blink([eye]));
 });
 
-// === RECHERCHE ===
 const input = document.getElementById("search");
 const results = document.getElementById("results");
 const button = document.getElementById("search-btn");
