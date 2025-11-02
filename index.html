@@ -45,9 +45,13 @@ body {
   transition: transform 0.05s ease;
 }
 
-/* Clignement */
+/* --- CLIGNEMENT --- */
+.eye.blink {
+  height: 10px; /* l’œil se ferme */
+}
+
 .eye.blink .pupil {
-  transform: translate(0, 0) scaleY(0.1);
+  display: none; /* la pupille disparaît pendant le clignement */
 }
 
 /* --- BARRE DE RECHERCHE --- */
@@ -160,10 +164,10 @@ document.addEventListener('mousemove', (e) => {
   });
 });
 
-// === CLIGNEMENT SYNCHRONISÉ ===
+// === CLIGNEMENT SYNCHRONISÉ ET AU CLIC ===
 function blink(eyesArray) {
   eyesArray.forEach(eye => eye.classList.add('blink'));
-  setTimeout(() => eyesArray.forEach(eye => eye.classList.remove('blink')), 150);
+  setTimeout(() => eyesArray.forEach(eye => eye.classList.remove('blink')), 200);
 }
 
 // Clignement automatique toutes les 3 à 6 secondes
@@ -221,4 +225,3 @@ input.addEventListener("keydown", e => {
 </script>
 </body>
 </html>
-
