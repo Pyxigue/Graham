@@ -30,32 +30,35 @@
   </div>
 
   <script>
-    // Récupère la valeur du paramètre "q" dans l’URL
-    const params = new URLSearchParams(window.location.search);
-    const query = params.get('q');
+const params = new URLSearchParams(window.location.search);
+const query = params.get('q')?.toLowerCase() || "";
+const resultsContainer = document.getElementById('results');
+const queryElement = document.getElementById('query');
 
-    // Affiche la recherche
-    const queryElement = document.getElementById('query');
-    const resultsContainer = document.getElementById('results');
+queryElement.textContent = query ? `Vous avez recherché : "${query}"` : "Aucune recherche spécifiée.";
 
-    if (query) {
-      queryElement.textContent = `Vous avez recherché : "${query}"`;
+if (query) {
+  fetch('data.json')
+    .then(res => res.json())
+    .then(data => {
+      const matches = data.filter(item =>
+        item.title.toLowerCase().includes(query) ||
+        item.desc.toLowerCase().includes(query)
+      );
+      if (matches.length > 0) {
+        resultsContainer.innerHTML = matches
+          .map(m => `<div><h3>${m.title}</h3><p>${m.desc}</p></div>`)
+          .join('');
+      } else {
+        resultsContainer.textContent = "Aucun résultat trouvé.";
+      }
+    })
+    .catch(err => {
+      resultsContainer.textContent = "Erreur de chargement des données.";
+      console.error(err);
+    });
+}
+</script>
 
-      // Exemple de "résultats fictifs"
-      const exampleResults = [
-        `Résultat 1 pour ${query}`,
-        `Résultat 2 pour ${query}`,
-        `Résultat 3 pour ${query}`
-      ];
-
-      resultsContainer.innerHTML = `
-        <ul>
-          ${exampleResults.map(r => `<li>${r}</li>`).join('')}
-        </ul>
-      `;
-    } else {
-      queryElement.textContent = "Aucune recherche spécifiée.";
-    }
-  </script>
 </body>
 </html>
