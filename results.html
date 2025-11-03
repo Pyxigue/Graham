@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Résultats de recherche</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 40px;
+      background-color: #f5f5f5;
+      color: #333;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 600px;
+      margin: auto;
+    }
+    h1 { color: #0066cc; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Résultats de recherche</h1>
+    <p id="query"></p>
+    <div id="results"></div>
+  </div>
+
+  <script>
+    // Récupère la valeur du paramètre "q" dans l’URL
+    const params = new URLSearchParams(window.location.search);
+    const query = params.get('q');
+
+    // Affiche la recherche
+    const queryElement = document.getElementById('query');
+    const resultsContainer = document.getElementById('results');
+
+    if (query) {
+      queryElement.textContent = `Vous avez recherché : "${query}"`;
+
+      // Exemple de "résultats fictifs"
+      const exampleResults = [
+        `Résultat 1 pour ${query}`,
+        `Résultat 2 pour ${query}`,
+        `Résultat 3 pour ${query}`
+      ];
+
+      resultsContainer.innerHTML = `
+        <ul>
+          ${exampleResults.map(r => `<li>${r}</li>`).join('')}
+        </ul>
+      `;
+    } else {
+      queryElement.textContent = "Aucune recherche spécifiée.";
+    }
+  </script>
+</body>
+</html>
