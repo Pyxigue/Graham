@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Graham</title>
+<title>Graham Search</title>
 <style>
 body {
   margin: 0;
@@ -44,13 +44,8 @@ body {
   transition: transform 0.05s ease;
 }
 
-.eye.blink {
-  height: 10px; 
-}
-
-.eye.blink .pupil {
-  display: none; 
-}
+.eye.blink { height: 10px; }
+.eye.blink .pupil { display: none; }
 
 .search-box {
   position: absolute;
@@ -84,7 +79,7 @@ body {
   box-shadow: 0 0 25px #00bfff, inset 0 0 10px #00bfff40;
 }
 
-.search-box .icon {
+.icon {
   position: absolute;
   right: 18px;
   top: 50%;
@@ -92,13 +87,9 @@ body {
   font-size: 1.5rem;
   color: #00bfff;
   cursor: pointer;
-  transition: transform 0.2s ease;
 }
 
-.search-box .icon:hover {
-  transform: translateY(-50%) scale;
-  
-.results {
+.suggestions {
   position: absolute;
   top: 65%;
   left: 50%;
@@ -110,26 +101,21 @@ body {
   color: white;
   display: none;
   padding: 10px 0;
-  max-height: 300px;
-  overflow-y: auto;
 }
 
-.results a {
-  display: block;
-  color: #00bfff;
-  text-decoration: none;
+.suggestions div {
   padding: 10px 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  transition: background 0.3s, color 0.3s;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
-.results a:hover {
+.suggestions div:hover {
   background: rgba(0,191,255,0.1);
-  color: #00eaff;
 }
 </style>
 </head>
 <body>
+
   <div class="eye left"><div class="pupil"></div></div>
   <div class="eye right"><div class="pupil"></div></div>
 
@@ -138,7 +124,7 @@ body {
     <div class="icon" id="search-btn">🔍</div>
   </div>
 
-  <div class="results" id="results"></div>
+  <div class="suggestions" id="suggestions"></div>
 
 <script>
 const eyes = document.querySelectorAll('.eye');
@@ -159,55 +145,41 @@ function blink(eyesArray) {
   eyesArray.forEach(eye => eye.classList.add('blink'));
   setTimeout(() => eyesArray.forEach(eye => eye.classList.remove('blink')), 200);
 }
-
-setInterval(() => {
-  blink(eyes);
-}, Math.random() * 3000 + 3000);
-
-eyes.forEach(eye => {
-  eye.addEventListener('click', () => blink([eye]));
-});
+setInterval(() => blink(eyes), Math.random() * 3000 + 3000);
 
 const input = document.getElementById("search");
-const results = document.getElementById("results");
 const button = document.getElementById("search-btn");
+const suggestionsBox = document.getElementById("suggestions");
 
-function searchWeb() {
-  const q = input.value.trim();
-  if (q === "") {
-    results.style.display = "none";
+input.addEventListener("input", async () => {
+  const query = input.value.trim();
+  if (!query) {
+    suggestionsBox.style.display = "none";
     return;
   }
+  const res = await fetch(`https://duckduckgo.com/ac/?q=${encodeURIComponent(query)}`);
+  const data = await res.json();
+  suggestionsBox.innerHTML = "";
+  data.slice(0, 6).forEach(item => {
+    const div = document.createElement("div");
+    div.textContent = item.phrase;
+    div.addEventListener("click", () => {
+      window.location.href = `results.html?q=${encodeURIComponent(item.phrase)}`;
+    });
+    suggestionsBox.appendChild(div);
+  });
+  suggestionsBox.style.display = data.length ? "block" : "none";
+});
 
-  const encoded = encodeURIComponent(q);
-  const searchEngines = {
-    "Google": `https://www.google.com/search?q=${encoded}`,
-    "YouTube": `https://www.youtube.com/results?search_query=${encoded}`,
-    "Wikipedia": `https://fr.wikipedia.org/wiki/${encoded}`,
-    "Bing": `https://www.bing.com/search?q=${encoded}`,
-    "DuckDuckGo": `https://duckduckgo.com/?q=${encoded}`,
-    "GitHub": `https://github.com/search?q=${encoded}`,
-    "Reddit": `https://www.reddit.com/search/?q=${encoded}`,
-    "Amazon": `https://www.amazon.fr/s?k=${encoded}`,
-    "Spotify": `https://open.spotify.com/search/${encoded}`,
-    "TikTok": `https://www.tiktok.com/search?q=${encoded}`
-  };
-
-  results.innerHTML = "";
-  for (const [name, url] of Object.entries(searchEngines)) {
-    const a = document.createElement("a");
-    a.href = url;
-    a.target = "_blank";
-    a.textContent = `${name} → ${q}`;
-    results.appendChild(a);
-  }
-
-  results.style.display = "block";
-}
-
-button.addEventListener("click", searchWeb);
+button.addEventListener("click", () => {
+  const q = input.value.trim();
+  if (q) window.location.href = `results.html?q=${encodeURIComponent(q)}`;
+});
 input.addEventListener("keydown", e => {
-  if (e.key === "Enter") searchWeb();
+  if (e.key === "Enter") {
+    const q = input.value.trim();
+    if (q) window.location.href = `results.html?q=${encodeURIComponent(q)}`;
+  }
 });
 </script>
 </body>
