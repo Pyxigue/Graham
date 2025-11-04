@@ -3,9 +3,9 @@ import sqlite3
 from datetime import datetime
 
 app = Flask(__name__)
-app.secret_key = "super_secret_key"  # change ceci
+app.secret_key = "super_secret_key"  # à changer
 
-# --- Base de données ---
+# --- Initialisation de la base ---
 def init_db():
     with sqlite3.connect("users.db") as db:
         c = db.cursor()
@@ -24,8 +24,7 @@ def init_db():
 
 init_db()
 
-# --- Routes ---
-
+# --- Routes principales ---
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -42,7 +41,7 @@ def register():
                 db.commit()
                 return redirect("/login")
             except sqlite3.IntegrityError:
-                return "Nom déjà pris, choisis-en un autre."
+                return "Nom déjà pris. Essaie un autre."
     return render_template("register.html")
 
 @app.route("/login", methods=["GET", "POST"])
@@ -72,8 +71,7 @@ def logout():
     session.pop("user", None)
     return redirect("/")
 
-# --- API pour le chat ---
-
+# --- API du chat ---
 @app.route("/send", methods=["POST"])
 def send_message():
     if "user" not in session:
@@ -96,3 +94,4 @@ def get_messages():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
