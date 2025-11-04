@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Chat</title>
+<style>
+body { font-family: Arial; background:#111; color:white; }
+#messages { height: 300px; overflow-y: scroll; border:1px solid #333; padding:10px; }
+#form { margin-top:10px; display:flex; }
+input[type=text] { flex:1; padding:10px; border:none; border-radius:5px; }
+button { padding:10px; background:#00bfff; border:none; color:white; border-radius:5px; }
+</style>
+</head>
+<body>
+<h2>Bienvenue {{ username }} 👋</h2>
+<div id="messages"></div>
+
+<form id="form">
+  <input type="text" id="msg" placeholder="Écris un message...">
+  <button>Envoyer</button>
+</form>
+
+<script>
+async function loadMessages() {
+  const res = await fetch("/messages");
+  const data = await res.json();
+  const box = document.getElementById("messages");
+  box.innerHTML = data.map(m => `<p><b>${m[0]}</b> (${m[2]}): ${m[1]}</p>`).join("");
+  box.scrollTop = box.scrollHeight;
+}
+
+document.getElementById("form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const content = document.getElementById("msg").value;
+  if (!content) return;
+  await fetch("/send", { method:"POST", body:new URLSearchParams({content}) });
+  document.getElementById("msg").value = "";
+  loadMessages();
+});
+
+setInterval(loadMessages, 2000);
+loadMessages();
+</script>
+</body>
+</html>
